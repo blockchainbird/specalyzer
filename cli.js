@@ -65,7 +65,11 @@ fetchIndexHtml(normalizedUrl, (err, html) => {
     console.log('\x1b[1mSpecalyzer Report\x1b[0m');
     console.log('\x1b[36m==============================\x1b[0m\n');
     console.log('\x1b[33m[Repository]\x1b[0m');
-    console.log('  ', repoUrl);
+    if (typeof repoUrl === 'object' && repoUrl.host === 'github') {
+      console.log('  https://github.com/' + repoUrl.account + '/' + repoUrl.repo);
+    } else {
+      console.log('  ', repoUrl);
+    }
     // Check for index.pdf
     pdfCheck.checkIndexPdfExists(normalizedUrl, (err, exists) => {
       if (err) {
