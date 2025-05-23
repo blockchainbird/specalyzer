@@ -71,9 +71,9 @@ fetchIndexHtml(normalizedUrl, (err, html) => {
       if (err) {
         console.log('\x1b[31m[PDF]\x1b[0m   Error checking for index.pdf:', err.message);
       } else if (exists) {
-        console.log('\x1b[32m[PDF]\x1b[0m   index.pdf exists next to index.html');
+        console.log('\x1b[32m[PDF]\x1b[0m   index.pdf exists');
       } else {
-        console.log('\x1b[33m[PDF]\x1b[0m   index.pdf does NOT exist next to index.html');
+        console.log('\x1b[33m[PDF]\x1b[0m   index.pdf does NOT exist');
       }
       // Use specupVersion module to get package.json and spec-up-t version
       const repoUrlString = typeof repoUrl === 'object' && repoUrl.host === 'github'
