@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run CLI",
+      "type": "shell",
+      "command": "node cli.js",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
