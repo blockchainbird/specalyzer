@@ -5,7 +5,7 @@
   "bin": {
     "specalyzer": "cli.js"
   },
-  "author": "blockchainbird",
+  "author": "korkor",
   "license": "MIT",
   "repository": {
     "type": "git",
