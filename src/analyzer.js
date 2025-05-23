@@ -7,6 +7,7 @@ const specConfig = require('./specConfig');
 const repoUrl = require('./repoUrl');
 const reporter = require('./reporter');
 const formatter = require('./formatter');
+const versionCheck = require('./versionCheck');
 
 /**
  * Fetch and analyze HTML to extract repo URL
@@ -62,6 +63,14 @@ async function analyzeSpec(normalizedUrl) {
     } catch (versionError) {
       console.error(formatter.format.error(versionError.message));
       process.exit(1);
+    }
+    
+    // Check for versions directory and count version subdirectories
+    try {
+      const versionInfo = await versionCheck.checkVersions(normalizedUrl);
+      reporter.printVersionInfo(versionInfo);
+    } catch (versionError) {
+      console.error(formatter.format.error(`Error checking versions: ${versionError.message}`));
     }
     
   } catch (error) {

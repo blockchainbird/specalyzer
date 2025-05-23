@@ -6,6 +6,7 @@ const formatter = require('./formatter');
 const repoUrl = require('./repoUrl');
 const specupVersion = require('../specupVersion');
 const fetcher = require('./fetcher');
+const versionCheck = require('./versionCheck');
 
 // Shortcuts for formatter
 const format = formatter.format;
@@ -87,3 +88,13 @@ module.exports.printSpecUpVersion = printSpecUpVersion;
 module.exports.printRepositoryInfo = printRepositoryInfo;
 module.exports.printFooter = printFooter;
 module.exports.fetchAndPrintVersion = fetchAndPrintVersion;
+module.exports.printVersionInfo = printVersionInfo;
+
+/**
+ * Print information about versions directory and version subdirectories
+ * @param {Object} versionInfo - Version information object from versionCheck
+ */
+function printVersionInfo(versionInfo) {
+  const formattedInfo = versionCheck.formatVersionInfo(versionInfo);
+  console.log(format.info('Versions', formattedInfo));
+}
