@@ -18,5 +18,8 @@
   ],
   "scripts": {
     "start": "node cli.js"
+  },
+  "dependencies": {
+    "jsdom": "^24.0.0"
   }
 }
