@@ -1,6 +1,6 @@
 {
   "name": "specalyzer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A CLI tool for specalyzer, ready to use with NPX.",
   "bin": {
     "specalyzer": "cli.js"
@@ -11,7 +11,11 @@
     "type": "git",
     "url": "git+https://github.com/blockchainbird/specalyzer.git"
   },
-  "keywords": ["cli", "npx", "specalyzer"],
+  "keywords": [
+    "cli",
+    "npx",
+    "specalyzer"
+  ],
   "scripts": {
     "start": "node cli.js"
   }
