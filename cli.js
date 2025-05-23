@@ -38,26 +38,19 @@ function fetchIndexHtml(url, callback) {
 function extractRepoUrlFromSpecConfig(html) {
   const dom = new JSDOM(html);
   const scripts = dom.window.document.querySelectorAll('script');
-  let specConfig = null;
   for (const script of scripts) {
-    if (script.textContent.includes('window.specConfig')) {
-      try {
-        // Create a sandbox and evaluate the script
-        const sandbox = {};
-        vm.createContext(sandbox);
-        // Patch: define window in the sandbox for scripts that use window.specConfig
-        sandbox.window = {};
-        vm.runInContext(script.textContent, sandbox);
-        if (sandbox.window && sandbox.window.specConfig && sandbox.window.specConfig.source) {
-          specConfig = sandbox.window.specConfig;
-          break;
-        }
-      } catch (e) {
-        // Ignore and continue
-      }
+    if (!script.textContent.includes('window.specConfig')) continue;
+    try {
+      const sandbox = { window: {} };
+      vm.createContext(sandbox);
+      vm.runInContext(script.textContent, sandbox);
+      const config = sandbox.window.specConfig;
+      if (config && config.source) return config.source;
+    } catch (e) {
+      // Ignore and continue
     }
   }
-  return specConfig && specConfig.source ? specConfig.source : null;
+  return null;
 }
 
 fetchIndexHtml(normalizedUrl, (err, html) => {
