@@ -17,11 +17,18 @@ async function main() {
   
   if (!input) {
     console.error('Usage: npx specalyzer <url>');
+    console.error('  where <url> is either:');
+    console.error('  - A URL to a deployed Spec-Up site (e.g., https://example.com/spec)');
+    console.error('  - A GitHub repository URL (e.g., https://github.com/org/repo)');
     process.exit(1);
   }
 
+  // Version info
+  const pkgJson = require('./package.json');
+  console.log(`Specalyzer v${pkgJson.version || '1.0.0'}`);
+
   const normalizedUrl = fetcher.normalizeUrl(input);
-  console.log(`Normalized URL: ${normalizedUrl}`);
+  console.log(`Analyzing: ${normalizedUrl}\n`);
 
   try {
     // Analyze the spec
@@ -33,7 +40,7 @@ async function main() {
     // Explicitly exit
     process.exit(0);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`\nError: ${error.message}`);
     process.exit(1);
   }
 }

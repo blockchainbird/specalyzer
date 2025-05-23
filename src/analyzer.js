@@ -15,14 +15,25 @@ const versionCheck = require('./versionCheck');
  * @returns {Promise<Object|string>} Repository URL
  */
 async function fetchAndAnalyzeHtml(url) {
-  const html = await fetcher.fetchIndexHtml(url);
-  const repo = specConfig.extractRepoUrlFromSpecConfig(html);
-  
-  if (!repo) {
-    throw new Error('Could not find specConfig.source in index.html');
+  // Check if the URL is already a GitHub repo URL
+  if (url.includes('github.com')) {
+    return url; // If it's already a GitHub URL, return it directly
   }
   
-  return repo;
+  try {
+    const html = await fetcher.fetchIndexHtml(url);
+    const repo = specConfig.extractRepoUrlFromSpecConfig(html);
+    
+    if (!repo) {
+      throw new Error('Could not find specConfig.source in index.html');
+    }
+    
+    return repo;
+  } catch (error) {
+    // If we can't fetch the HTML, assume the URL is the repo itself
+    console.log(`Note: Treating ${url} as a repository URL directly`);
+    return url;
+  }
 }
 
 /**
@@ -57,13 +68,7 @@ async function analyzeSpec(normalizedUrl) {
     
     // Get and print spec-up-t version
     const repoUrlString = repoUrl.getRepoUrlString(repo);
-    
-    try {
-      await reporter.fetchAndPrintVersion(repoUrlString);
-    } catch (versionError) {
-      console.error(formatter.format.error(versionError.message));
-      process.exit(1);
-    }
+    await reporter.fetchAndPrintVersion(repoUrlString);
     
     // Check for versions directory and count version subdirectories
     try {

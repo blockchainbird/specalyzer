@@ -70,15 +70,39 @@ function printFooter() {
  * @returns {Promise<void>}
  */
 async function fetchAndPrintVersion(repoUrlString) {
-  const pkgUrl = specupVersion.getRawPackageJsonUrl(repoUrlString);
-  
-  if (!pkgUrl) {
-    throw new Error('Could not construct raw package.json URL from repo URL.');
+  try {
+    // Get possible URLs for package.json (main and master branches)
+    const pkgUrls = specupVersion.getRawPackageJsonUrls(repoUrlString);
+    
+    if (!pkgUrls || pkgUrls.length === 0) {
+      throw new Error('Could not construct raw package.json URL from repo URL.');
+    }
+    
+    // Try each URL in sequence until one works
+    let pkg = null;
+    let lastError = null;
+    
+    for (const pkgUrl of pkgUrls) {
+      try {
+        pkg = await fetcher.fetchPackageJson(pkgUrl);
+        // If we got here, we successfully fetched the package.json
+        break;
+      } catch (err) {
+        // Store the error and try the next URL
+        lastError = err;
+      }
+    }
+    
+    if (pkg) {
+      const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
+      printSpecUpVersion(version);
+    } else {
+      // If we couldn't fetch from any URL, show the last error
+      console.log(format.warning('spec-up-t', `Could not determine version: ${lastError ? lastError.message : 'Unknown error'}`));
+    }
+  } catch (err) {
+    console.log(format.warning('spec-up-t', `Could not check version: ${err.message}`));
   }
-  
-  const pkg = await fetcher.fetchPackageJson(pkgUrl);
-  const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
-  printSpecUpVersion(version);
 }
 
 // Export functions

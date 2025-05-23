@@ -42,9 +42,18 @@ function checkIndexPdf(url) {
  */
 function fetchPackageJson(url) {
   return new Promise((resolve, reject) => {
+    console.log(`Fetching package.json from: ${url}`);
     specupVersion.fetchJson(url, (err, data) => {
-      if (err) reject(err);
-      else resolve(data);
+      if (err) {
+        // Don't log 404 errors as they're expected when trying different branches
+        if (!err.message.includes('HTTP Error: 404')) {
+          console.log(`Error fetching package.json: ${err.message}`);
+        }
+        reject(err);
+      } else {
+        console.log(`Successfully fetched package.json from: ${url}`);
+        resolve(data);
+      }
     });
   });
 }

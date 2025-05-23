@@ -4,11 +4,12 @@
 const https = require('https');
 
 /**
- * Constructs a URL for the raw package.json file from a GitHub repository URL
+ * Constructs URLs for the raw package.json file from a GitHub repository URL
+ * Tries both main and master branches
  * @param {string} repoUrl - The GitHub repository URL
- * @returns {string|null} The raw URL for package.json or null if not a GitHub repo
+ * @returns {Array<string>|null} Array of raw URLs for package.json or null if not a GitHub repo
  */
-function getRawPackageJsonUrl(repoUrl) {
+function getRawPackageJsonUrls(repoUrl) {
   // Support GitHub only for now
   // Accepts: https://github.com/org/repo or https://github.com/org/repo.git
   const m = repoUrl.match(/^https:\/\/github.com\/([^\/]+)\/([^\/\.]+)(?:\.git)?/);
@@ -16,8 +17,23 @@ function getRawPackageJsonUrl(repoUrl) {
   
   const org = m[1];
   const repo = m[2];
-  // Default branch: main
-  return `https://raw.githubusercontent.com/${org}/${repo}/main/package.json`;
+
+  // Return URLs for both main and master branches
+  return [
+    `https://raw.githubusercontent.com/${org}/${repo}/main/package.json`,
+    `https://raw.githubusercontent.com/${org}/${repo}/master/package.json`
+  ];
+}
+
+/**
+ * Constructs a URL for the raw package.json file from a GitHub repository URL
+ * @param {string} repoUrl - The GitHub repository URL
+ * @returns {string|null} The raw URL for package.json or null if not a GitHub repo
+ * @deprecated Use getRawPackageJsonUrls instead
+ */
+function getRawPackageJsonUrl(repoUrl) {
+  const urls = getRawPackageJsonUrls(repoUrl);
+  return urls ? urls[0] : null; // Return the first URL (main branch) for backward compatibility
 }
 
 /**
@@ -27,13 +43,29 @@ function getRawPackageJsonUrl(repoUrl) {
  */
 function fetchJson(url, callback) {
   https.get(url, (res) => {
+    // Check if the response is successful
+    if (res.statusCode >= 400) {
+      return callback(new Error(`HTTP Error: ${res.statusCode}`));
+    }
+    
+    // Check content type to ensure it's JSON
+    const contentType = res.headers['content-type'];
+    if (contentType && !contentType.includes('application/json') && !contentType.includes('text/plain')) {
+      return callback(new Error(`Invalid content type: ${contentType}`));
+    }
+    
     let data = '';
     res.on('data', chunk => data += chunk);
     res.on('end', () => {
       try {
-        callback(null, JSON.parse(data));
+        // Trim the data to remove any whitespace before parsing
+        const trimmedData = data.trim();
+        if (!trimmedData) {
+          return callback(new Error('Empty response received'));
+        }
+        callback(null, JSON.parse(trimmedData));
       } catch (e) {
-        callback(e);
+        callback(new Error(`JSON parsing error: ${e.message}`));
       }
     });
   }).on('error', err => callback(err));
@@ -57,6 +89,7 @@ function getSpecUpTVersionFromPackageJson(pkg, depName = 'spec-up-t') {
 
 module.exports = {
   getRawPackageJsonUrl,
+  getRawPackageJsonUrls,
   fetchJson,
   getSpecUpTVersionFromPackageJson
 };

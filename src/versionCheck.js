@@ -57,12 +57,35 @@ async function checkVersions(baseUrl) {
  */
 function checkDirectoryExists(url) {
   return new Promise((resolve) => {
-    const req = https.request(url, { method: 'HEAD' }, (res) => {
+    console.log(`Checking directory: ${url}`);
+    const parsedUrl = new URL(url);
+    
+    // Choose the right module based on protocol
+    const protocol = parsedUrl.protocol === 'https:' ? https : require('http');
+    
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: 'HEAD',
+      timeout: 5000 // 5 second timeout
+    };
+    
+    const req = protocol.request(options, (res) => {
       // Status codes 200, 301, 302 indicate the directory exists
-      resolve(res.statusCode >= 200 && res.statusCode < 400);
+      const exists = res.statusCode >= 200 && res.statusCode < 400;
+      console.log(`Directory ${url}: ${exists ? 'exists' : 'does not exist'} (status: ${res.statusCode})`);
+      resolve(exists);
     });
     
-    req.on('error', () => {
+    req.on('error', (err) => {
+      console.log(`Error checking directory ${url}: ${err.message}`);
+      resolve(false);
+    });
+    
+    req.on('timeout', () => {
+      console.log(`Timeout checking directory ${url}`);
+      req.abort();
       resolve(false);
     });
     
@@ -79,21 +102,41 @@ function checkDirectoryExists(url) {
  * @returns {Promise<string[]>} Array of version directory names (e.g., ['v1', 'v2'])
  */
 async function listVersionDirectories(versionsUrl) {
-  // This is a heuristic approach - try common version patterns sequentially
+  console.log(`Checking for version directories at: ${versionsUrl}`);
   const versionDirs = [];
+  let missingCount = 0;
+  const maxMissingVersions = 3; // Allow up to 3 missing versions before stopping
   
-  // Check for directories v1 through v20 (arbitrary upper limit)
-  for (let i = 1; i <= 20; i++) {
-    const versionUrl = new URL(`v${i}/`, versionsUrl).toString();
+  // First check for a GitHub repository structure if it's GitHub
+  if (versionsUrl.includes('github.com')) {
+    console.log('GitHub repository detected - checking for versions through GitHub API...');
+    // For GitHub, we'd need to use the GitHub API but we'll skip for now
+  }
+  
+  // Check for common version patterns
+  const versionPatterns = [
+    // numeric versions from 1 to 20
+    ...Array.from({length: 20}, (_, i) => `v${i+1}`),
+    // semantic versions
+    '1.0', 'v1.0', 'v1.0.0',
+    '2.0', 'v2.0', 'v2.0.0',
+    // other common patterns
+    'latest', 'stable', 'current', 'next', 'beta'
+  ];
+  
+  for (const vPattern of versionPatterns) {
+    const versionUrl = new URL(`${vPattern}/`, versionsUrl).toString();
     const exists = await checkDirectoryExists(versionUrl);
     
     if (exists) {
-      versionDirs.push(`v${i}`);
+      versionDirs.push(vPattern);
+      missingCount = 0; // Reset missing count when we find a directory
     } else {
-      // Stop checking after first missing version
-      // This assumes versions are sequential without gaps
-      // Remove this break if versions might have gaps
-      break;
+      missingCount++;
+      if (missingCount >= maxMissingVersions) {
+        // Stop checking after several consecutive missing versions
+        break;
+      }
     }
   }
   
