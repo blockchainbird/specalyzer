@@ -3,8 +3,8 @@
  */
 
 const https = require('https');
-const pdfCheck = require('../pdfCheck');
-const specupVersion = require('../specupVersion');
+const pdfCheck = require('./pdfCheck');
+const specupVersion = require('./specupVersion');
 
 /**
  * Fetches index.html from a URL

@@ -4,7 +4,7 @@
 
 const formatter = require('./formatter');
 const repoUrl = require('./repoUrl');
-const specupVersion = require('../specupVersion');
+const specupVersion = require('./specupVersion');
 const fetcher = require('./fetcher');
 const versionCheck = require('./versionCheck');
 

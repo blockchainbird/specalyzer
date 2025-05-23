@@ -23,11 +23,19 @@ async function main() {
   const normalizedUrl = fetcher.normalizeUrl(input);
   console.log(`Normalized URL: ${normalizedUrl}`);
 
-  // Analyze the spec
-  await analyzer.analyzeSpec(normalizedUrl);
+  try {
+    // Analyze the spec
+    await analyzer.analyzeSpec(normalizedUrl);
   
-  // Print footer
-  reporter.printFooter();
+    // Print footer
+    reporter.printFooter();
+    
+    // Explicitly exit
+    process.exit(0);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
 }
 
 // Execute the main function
