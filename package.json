@@ -1,10 +1,11 @@
 {
   "name": "specalyzer",
-  "version": "0.1.2",
-  "description": "A CLI tool for specalyzer, ready to use with NPX.",
+  "version": "0.2.0",
+  "description": "A CLI tool to analyze specifications built with Spec-Up or Spec-Up-T.",
   "bin": {
     "specalyzer": "cli.js"
   },
+  "main": "cli.js",
   "author": "korkor",
   "license": "MIT",
   "repository": {
@@ -14,11 +15,25 @@
   "keywords": [
     "cli",
     "npx",
-    "specalyzer"
+    "specalyzer",
+    "spec-up",
+    "spec-up-t",
+    "spec",
+    "analyzer"
   ],
   "scripts": {
-    "start": "node cli.js"
+    "start": "node cli.js",
+    "test": "node cli.js example.com"
   },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "files": [
+    "cli.js",
+    "specupVersion.js",
+    "pdfCheck.js",
+    "src/**/*.js"
+  ],
   "dependencies": {
     "jsdom": "^24.0.0"
   }

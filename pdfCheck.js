@@ -3,6 +3,11 @@
 
 const https = require('https');
 
+/**
+ * Checks if index.pdf exists at the given URL (callback style)
+ * @param {string} baseUrl - Base URL where index.pdf would be located
+ * @param {function} callback - Callback function with (error, exists) parameters
+ */
 function checkIndexPdfExists(baseUrl, callback) {
   const url = baseUrl.replace(/\/$/, '') + '/index.pdf';
   https.get(url, (res) => {
