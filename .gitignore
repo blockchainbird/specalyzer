@@ -20,3 +20,5 @@ Thumbs.db
 *.local
 *.sublime-workspace
 *.sublime-project
+
+reports/
