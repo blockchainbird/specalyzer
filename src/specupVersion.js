@@ -87,9 +87,61 @@ function getSpecUpTVersionFromPackageJson(pkg, depName = 'spec-up-t') {
   );
 }
 
+/**
+ * Checks if the package.json contains references to spec-up (original) instead of spec-up-t
+ * @param {Object} pkg - The parsed package.json data
+ * @returns {boolean} True if using spec-up, false if not
+ */
+function isUsingSpecUp(pkg) {
+  if (!pkg) return false;
+  
+  // Check if spec-up is listed as a dependency
+  const hasSpecUpDep = !!(
+    (pkg.dependencies && pkg.dependencies['spec-up']) ||
+    (pkg.devDependencies && pkg.devDependencies['spec-up'])
+  );
+  
+  // Check if repository URL references spec-up repository
+  const hasSpecUpRepo = !!(
+    pkg.repository &&
+    typeof pkg.repository === 'object' &&
+    pkg.repository.url &&
+    pkg.repository.url.includes('github.com/decentralized-identity/spec-up')
+  );
+  
+  // Return true if either condition is met
+  return hasSpecUpDep || hasSpecUpRepo;
+}
+
+/**
+ * Extracts the spec-up version from package.json data
+ * @param {Object} pkg - The parsed package.json data
+ * @returns {string|null} The version string or null if not found
+ */
+function getSpecUpVersionFromPackageJson(pkg) {
+  if (!pkg) return null;
+  
+  // First, check if it's a dependency
+  const depVersion = (pkg.dependencies && pkg.dependencies['spec-up']) ||
+    (pkg.devDependencies && pkg.devDependencies['spec-up']);
+
+  // If it's a dependency, return the version
+  if (depVersion) return depVersion;
+
+  // If it's not a dependency, check if the package itself is spec-up
+  // This happens when the repository is the spec-up repo itself or a fork/clone of it
+  if (pkg.name === 'spec-up' && pkg.version) {
+    return pkg.version;
+  }
+  
+  return null;
+}
+
 module.exports = {
   getRawPackageJsonUrl,
   getRawPackageJsonUrls,
   fetchJson,
-  getSpecUpTVersionFromPackageJson
+  getSpecUpTVersionFromPackageJson,
+  isUsingSpecUp,
+  getSpecUpVersionFromPackageJson
 };

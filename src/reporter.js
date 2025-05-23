@@ -1,5 +1,5 @@
 /**
- * Reporter module for displaying spec information
+ * Reporter module for displaying information to the console
  */
 
 const formatter = require('./formatter');
@@ -33,6 +33,30 @@ function printPdfStatus(exists, error) {
   const message = exists ? 'index.pdf exists' : 'index.pdf does NOT exist';
   const formatter = exists ? format.success : format.warning;
   console.log(formatter('PDF', message));
+}
+
+/**
+ * Print spec-up-t version
+ * @param {string|null} version - The spec-up-t version if found
+ */
+function printSpecUpVersion(version) {
+  const message = version 
+    ? `version in package.json: ${colors.bold}${version}${colors.reset}` 
+    : 'is not listed as a dependency in package.json';
+  
+  console.log(format.info('spec-up-t', message));
+}
+
+/**
+ * Print original spec-up version
+ * @param {string|null} version - The original spec-up version if found
+ */
+function printSpecUpOriginalVersion(version) {
+  const message = version 
+    ? `version in package.json: ${colors.bold}${version}${colors.reset}` 
+    : 'is detected but version is not listed in package.json';
+  
+  console.log(format.info('spec-up (original)', message));
 }
 
 /**
@@ -109,6 +133,7 @@ async function fetchAndPrintVersion(repoUrlString) {
 module.exports.printReportHeader = printReportHeader;
 module.exports.printPdfStatus = printPdfStatus;
 module.exports.printSpecUpVersion = printSpecUpVersion;
+module.exports.printSpecUpOriginalVersion = printSpecUpOriginalVersion;
 module.exports.printRepositoryInfo = printRepositoryInfo;
 module.exports.printFooter = printFooter;
 module.exports.fetchAndPrintVersion = fetchAndPrintVersion;

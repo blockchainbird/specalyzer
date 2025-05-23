@@ -502,12 +502,49 @@ async function saveAndOpenReport(html, url) {
   return filePath;
 }
 
+/**
+ * Format spec-up (original) version for HTML display
+ * @param {string|null} version - The spec-up version if found
+ * @returns {string} HTML snippet with formatted version information
+ */
+function formatSpecUpOriginalVersion(version) {
+  // Using a different color to differentiate from spec-up-t
+  if (version) {
+    return `
+      <div class="d-flex align-items-center">
+        <div class="rounded-circle bg-success text-white p-2 me-3">
+          <i class="bi bi-code-square fs-3"></i>
+        </div>
+        <div>
+          <h5 class="mb-1">Spec-Up Version (Original)</h5>
+          <p class="mb-0"><code>${version}</code></p>
+          <small class="text-muted">The specification was built with the original Spec-Up version ${version}.</small>
+        </div>
+      </div>
+    `;
+  } else {
+    return `
+      <div class="d-flex align-items-center">
+        <div class="rounded-circle bg-success text-white p-2 me-3">
+          <i class="bi bi-code-square fs-3"></i>
+        </div>
+        <div>
+          <h5 class="mb-1">Spec-Up (Original)</h5>
+          <p class="mb-0">Version not specified</p>
+          <small class="text-muted">The specification was built with the original Spec-Up but the version is not specified.</small>
+        </div>
+      </div>
+    `;
+  }
+}
+
 module.exports = {
   generateHtmlBoilerplate,
   createCardSection,
   formatRepositoryInfo,
   formatPdfStatus,
   formatSpecUpVersion,
+  formatSpecUpOriginalVersion,
   formatVersionInfo,
   formatLastModified,
   generateHtmlFooter,

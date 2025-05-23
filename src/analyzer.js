@@ -81,6 +81,8 @@ async function analyzeSpec(normalizedUrl, options = {}) {
     pdfExists: false,
     pdfError: null,
     specUpVersion: null,
+    isUsingSpecUp: false, // New field for spec-up (original) detection
+    specUpOriginalVersion: null, // Version if using original spec-up
     versionInfo: null,
     lastModified: null,
     headers: null,
@@ -147,11 +149,26 @@ async function analyzeSpec(normalizedUrl, options = {}) {
       }
       
       if (pkg) {
-        const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
-        result.specUpVersion = version;
+        // Check if using original spec-up
+        const isUsingSpecUp = specupVersion.isUsingSpecUp(pkg);
+        result.isUsingSpecUp = isUsingSpecUp;
         
-        if (!options.htmlOnly) {
-          reporter.printSpecUpVersion(version);
+        if (isUsingSpecUp) {
+          // Get the original spec-up version
+          const originalVersion = specupVersion.getSpecUpVersionFromPackageJson(pkg);
+          result.specUpOriginalVersion = originalVersion;
+          
+          if (!options.htmlOnly) {
+            reporter.printSpecUpOriginalVersion(originalVersion);
+          }
+        } else {
+          // Check for spec-up-t version as before
+          const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
+          result.specUpVersion = version;
+          
+          if (!options.htmlOnly) {
+            reporter.printSpecUpVersion(version);
+          }
         }
       }
     } catch (versionError) {
@@ -233,12 +250,20 @@ async function generateHtmlReport(normalizedUrl, version) {
     pdfStatus
   );
   
-  // Spec-up-t version section
-  html += htmlReporter.createCardSection(
-    'spec-up-t Version',
-    htmlReporter.formatSpecUpVersion(result.specUpVersion),
-    'info'
-  );
+  // Spec version section (either spec-up-t or original spec-up)
+  if (result.isUsingSpecUp) {
+    html += htmlReporter.createCardSection(
+      'spec-up Version (Original)',
+      htmlReporter.formatSpecUpOriginalVersion(result.specUpOriginalVersion),
+      'success'
+    );
+  } else {
+    html += htmlReporter.createCardSection(
+      'spec-up-t Version',
+      htmlReporter.formatSpecUpVersion(result.specUpVersion),
+      'info'
+    );
+  }
   
   // Version info section
   if (result.versionInfo) {
