@@ -122,31 +122,49 @@ function createCardSection(title, content, cardType = 'primary') {
 
 /**
  * Format repository information as HTML
- * @param {string} repo - Repository URL
+ * @param {string|Object} repo - Repository URL or object containing repository info
  * @returns {string} HTML string for repository info
  */
 function formatRepositoryInfo(repo) {
+  // Handle different repository types (string URL or object)
+  let repoUrl = '';
+  if (typeof repo === 'string') {
+    repoUrl = repo;
+  } else if (repo && typeof repo === 'object') {
+    // If it's an object, try to get the URL from it
+    repoUrl = repo.url || repo.html_url || repo.git_url || 
+              (repo.toString && repo.toString() !== '[object Object]' ? repo.toString() : 'Unknown repository');
+  } else {
+    // Fallback for any other type
+    repoUrl = 'Unknown repository';
+  }
+  
   // Check if it's a GitHub repository
-  const isGitHub = repo.includes('github.com');
+  const isGitHub = typeof repoUrl === 'string' && repoUrl.includes('github.com');
   
   let badgeHtml = '';
   if (isGitHub) {
-    const repoPath = new URL(repo).pathname.replace(/^\//, '').replace(/\.git$/, '');
-    badgeHtml = `
-      <div class="mb-3">
-        <img src="https://img.shields.io/github/stars/${repoPath}?style=for-the-badge&logo=github" alt="GitHub stars" class="me-2">
-        <img src="https://img.shields.io/github/last-commit/${repoPath}?style=for-the-badge&logo=git" alt="Last commit">
-      </div>
-    `;
+    try {
+      const repoPath = new URL(repoUrl).pathname.replace(/^\//, '').replace(/\.git$/, '');
+      badgeHtml = `
+        <div class="mb-3">
+          <img src="https://img.shields.io/github/stars/${repoPath}?style=for-the-badge&logo=github" alt="GitHub stars" class="me-2">
+          <img src="https://img.shields.io/github/last-commit/${repoPath}?style=for-the-badge&logo=git" alt="Last commit">
+        </div>
+      `;
+    } catch (error) {
+      // If URL parsing fails, don't show badges
+      badgeHtml = '';
+    }
   }
   
   const repoHtml = `
     <div class="d-flex align-items-center mb-3">
-      <i class="bi bi-github fs-3 me-2"></i>
+      <i class="bi ${isGitHub ? 'bi-github' : 'bi-git'} fs-3 me-2"></i>
       <h5 class="mb-0">Repository URL:</h5>
     </div>
-    <p><a href="${repo}" target="_blank" class="btn btn-outline-primary">
-      <i class="bi bi-box-arrow-up-right me-1"></i> ${repo}
+    <p><a href="${repoUrl}" target="_blank" class="btn btn-outline-primary">
+      <i class="bi bi-box-arrow-up-right me-1"></i> ${repoUrl}
     </a></p>
     ${badgeHtml}
   `;

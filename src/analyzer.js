@@ -31,7 +31,23 @@ async function fetchAndAnalyzeHtml(url) {
       throw new Error('Could not find specConfig.source in index.html');
     }
     
-    return repo;
+    // Ensure we return a string URL
+    if (typeof repo === 'string') {
+      return repo;
+    } else if (typeof repo === 'object' && repo !== null) {
+      // Try to extract URL from the object
+      const repoUrl = repo.url || repo.html_url || repo.git_url;
+      if (repoUrl && typeof repoUrl === 'string') {
+        return repoUrl;
+      }
+      // If we couldn't extract a URL string, return the original URL
+      console.log(`Note: Could not extract repository URL as string. Using original URL.`);
+      return url;
+    } else {
+      // If repo is neither string nor object, return the original URL
+      console.log(`Note: Invalid repository data type. Using original URL.`);
+      return url;
+    }
   } catch (error) {
     // If we can't fetch the HTML, assume the URL is the repo itself
     console.log(`Note: Treating ${url} as a repository URL directly`);
