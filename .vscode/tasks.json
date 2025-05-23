@@ -2,11 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run CLI",
+      "label": "Run Specalyzer with HTML Report",
       "type": "shell",
       "command": "node cli.js",
-      "group": "build",
-      "problemMatcher": []
+      "args": [
+        "example.com",
+        "--html"
+      ],
+      "group": "build"
     }
   ]
 }
