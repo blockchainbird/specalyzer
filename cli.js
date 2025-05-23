@@ -26,6 +26,7 @@ const https = require('https');
 const { JSDOM } = require('jsdom');
 const vm = require('vm');
 const specupVersion = require('./specupVersion');
+const pdfCheck = require('./pdfCheck');
 
 function fetchIndexHtml(url, callback) {
   https.get(url + '/index.html', (res) => {
@@ -55,35 +56,50 @@ function extractRepoUrlFromSpecConfig(html) {
 
 fetchIndexHtml(normalizedUrl, (err, html) => {
   if (err) {
-    console.error('Failed to fetch index.html:', err.message);
+    console.error('\n\x1b[31m[ERROR]\x1b[0m Failed to fetch index.html:', err.message, '\n');
     process.exit(1);
   }
   const repoUrl = extractRepoUrlFromSpecConfig(html);
   if (repoUrl) {
-    console.log('Repository URL from specConfig.source:', repoUrl);
-    // Use specupVersion module to get package.json and spec-up-t version
-    const repoUrlString = typeof repoUrl === 'object' && repoUrl.host === 'github'
-      ? `https://github.com/${repoUrl.account}/${repoUrl.repo}`
-      : repoUrl;
-    const pkgUrl = specupVersion.getRawPackageJsonUrl(repoUrlString);
-    if (!pkgUrl) {
-      console.error('Could not construct raw package.json URL from repo URL.');
-      process.exit(1);
-    }
-    specupVersion.fetchJson(pkgUrl, (err, pkg) => {
+    console.log('\n\x1b[36m==============================\x1b[0m');
+    console.log('\x1b[1mSpecalyzer Report\x1b[0m');
+    console.log('\x1b[36m==============================\x1b[0m\n');
+    console.log('\x1b[33m[Repository]\x1b[0m');
+    console.log('  ', repoUrl);
+    // Check for index.pdf
+    pdfCheck.checkIndexPdfExists(normalizedUrl, (err, exists) => {
       if (err) {
-        console.error('Failed to fetch package.json:', err.message);
+        console.log('\x1b[31m[PDF]\x1b[0m   Error checking for index.pdf:', err.message);
+      } else if (exists) {
+        console.log('\x1b[32m[PDF]\x1b[0m   index.pdf exists next to index.html');
+      } else {
+        console.log('\x1b[33m[PDF]\x1b[0m   index.pdf does NOT exist next to index.html');
+      }
+      // Use specupVersion module to get package.json and spec-up-t version
+      const repoUrlString = typeof repoUrl === 'object' && repoUrl.host === 'github'
+        ? `https://github.com/${repoUrl.account}/${repoUrl.repo}`
+        : repoUrl;
+      const pkgUrl = specupVersion.getRawPackageJsonUrl(repoUrlString);
+      if (!pkgUrl) {
+        console.error('\x1b[31m[ERROR]\x1b[0m Could not construct raw package.json URL from repo URL.');
         process.exit(1);
       }
-      const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
-      if (version) {
-        console.log('spec-up-t version in package.json:', version);
-      } else {
-        console.log('spec-up-t is not listed as a dependency in package.json');
-      }
+      specupVersion.fetchJson(pkgUrl, (err, pkg) => {
+        if (err) {
+          console.error('\x1b[31m[ERROR]\x1b[0m Failed to fetch package.json:', err.message);
+          process.exit(1);
+        }
+        const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
+        if (version) {
+          console.log('\x1b[34m[spec-up-t]\x1b[0m version in package.json: \x1b[1m' + version + '\x1b[0m');
+        } else {
+          console.log('\x1b[34m[spec-up-t]\x1b[0m is not listed as a dependency in package.json');
+        }
+        console.log('\n\x1b[36m==============================\x1b[0m\n');
+      });
     });
   } else {
-    console.error('Could not find specConfig.source in index.html');
+    console.error('\n\x1b[31m[ERROR]\x1b[0m Could not find specConfig.source in index.html\n');
     process.exit(1);
   }
 });
