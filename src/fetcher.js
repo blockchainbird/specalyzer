@@ -59,6 +59,42 @@ function fetchPackageJson(url) {
 }
 
 /**
+ * Gets the last modified date for a URL
+ * @param {string} url - The URL to check
+ * @returns {Promise<{date: Date|null, headers: Object}>} The last modified date and response headers
+ */
+function getLastModified(url) {
+  return new Promise((resolve, reject) => {
+    const requestUrl = url.endsWith('/') ? url : `${url}/`;
+    const options = {
+      method: 'HEAD'
+    };
+
+    https.get(requestUrl, options, (res) => {
+      const headers = res.headers;
+      let lastModified = null;
+      
+      // Try to get Last-Modified header
+      if (headers['last-modified']) {
+        lastModified = new Date(headers['last-modified']);
+      }
+      
+      resolve({
+        date: lastModified,
+        headers: headers
+      });
+    }).on('error', (err) => {
+      // Don't fail the whole process for this, just return null
+      console.error(`Error getting last modified date: ${err.message}`);
+      resolve({
+        date: null,
+        headers: {}
+      });
+    });
+  });
+}
+
+/**
  * Normalize input to a valid URL
  * @param {string} str - Input URL or domain
  * @returns {string} Normalized URL
@@ -75,4 +111,5 @@ function normalizeUrl(str) {
 module.exports.fetchIndexHtml = fetchIndexHtml;
 module.exports.checkIndexPdf = checkIndexPdf;
 module.exports.fetchPackageJson = fetchPackageJson;
+module.exports.getLastModified = getLastModified;
 module.exports.normalizeUrl = normalizeUrl;

@@ -82,10 +82,21 @@ async function analyzeSpec(normalizedUrl, options = {}) {
     pdfError: null,
     specUpVersion: null,
     versionInfo: null,
+    lastModified: null,
+    headers: null,
     error: null
   };
   
   try {
+    // Get the last modified date
+    try {
+      const lastModifiedInfo = await fetcher.getLastModified(normalizedUrl);
+      result.lastModified = lastModifiedInfo.date;
+      result.headers = lastModifiedInfo.headers;
+    } catch (error) {
+      console.log(`Warning: Could not get last modified date: ${error.message}`);
+    }
+    
     // Fetch and analyze HTML
     const repo = await fetchAndAnalyzeHtml(normalizedUrl);
     result.repo = repo;
@@ -205,6 +216,15 @@ async function generateHtmlReport(normalizedUrl, version) {
     );
   }
   
+  // Last modified info section
+  if (result.lastModified) {
+    html += htmlReporter.createCardSection(
+      'Last Updated',
+      htmlReporter.formatLastModified(result.lastModified, result.headers),
+      'secondary'
+    );
+  }
+  
   // PDF status section
   const pdfStatus = result.pdfExists ? 'success' : 'warning';
   html += htmlReporter.createCardSection(
@@ -239,7 +259,7 @@ async function generateHtmlReport(normalizedUrl, version) {
   }
   
   // Add footer
-  html += htmlReporter.generateHtmlFooter(version);
+  html += htmlReporter.generateHtmlFooter(version, normalizedUrl);
   
   // Save to file and open in browser
   const filePath = await htmlReporter.saveAndOpenReport(html, normalizedUrl);

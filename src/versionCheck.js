@@ -27,7 +27,8 @@ async function checkVersions(baseUrl) {
       return {
         exists: false,
         count: 0,
-        versions: []
+        versions: [],
+        baseUrl: normalizedUrl  // Include the base URL for links
       };
     }
     
@@ -37,7 +38,8 @@ async function checkVersions(baseUrl) {
     return {
       exists: true,
       count: versionDirs.length,
-      versions: versionDirs
+      versions: versionDirs,
+      baseUrl: baseUrl // Include the base URL for constructing version links
     };
   } catch (error) {
     console.error('Error checking versions:', error.message);
@@ -45,7 +47,8 @@ async function checkVersions(baseUrl) {
       exists: false,
       count: 0,
       versions: [],
-      error: error.message
+      error: error.message,
+      baseUrl: normalizedUrl  // Include the base URL for links
     };
   }
 }

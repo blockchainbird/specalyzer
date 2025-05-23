@@ -73,30 +73,6 @@ function generateHtmlBoilerplate(title, url) {
       color: #6c757d;
       font-size: 0.875rem;
     }
-    .version-list {
-      max-height: 300px;
-      overflow-y: auto;
-      padding: 0.75rem;
-      border: 1px solid #dee2e6;
-      border-radius: 0.5rem;
-      background-color: #f8f9fa;
-      margin-top: 1rem;
-    }
-    .badge-container {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .refresh-btn {
-      transition: all 0.3s ease;
-    }
-    .refresh-btn:hover {
-      transform: rotate(180deg);
-    }
-    .info-icon {
-      margin-right: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -110,7 +86,7 @@ function generateHtmlBoilerplate(title, url) {
         </div>
         <div>
           <a href="javascript:void(0);" onclick="refreshReport()" class="btn btn-light">
-            <i class="bi bi-arrow-repeat refresh-btn"></i> Refresh Analysis
+            <i class="bi bi-arrow-repeat"></i> Refresh Analysis
           </a>
         </div>
       </div>
@@ -181,9 +157,9 @@ function formatRepositoryInfo(repo) {
     try {
       const repoPath = new URL(repoUrl).pathname.replace(/^\//, '').replace(/\.git$/, '');
       badgeHtml = `
-        <div class="badge-container">
-          <img src="https://img.shields.io/github/stars/${repoPath}?style=flat-square&logo=github" alt="GitHub stars" class="me-2">
-          <img src="https://img.shields.io/github/last-commit/${repoPath}?style=flat-square&logo=git" alt="Last commit">
+        <div class="mb-3">
+          <img src="https://img.shields.io/github/stars/${repoPath}?style=for-the-badge&logo=github" alt="GitHub stars" class="me-2">
+          <img src="https://img.shields.io/github/last-commit/${repoPath}?style=for-the-badge&logo=git" alt="Last commit">
         </div>
       `;
     } catch (error) {
@@ -226,28 +202,34 @@ function formatPdfStatus(exists, error = null) {
       </div>
     `;
   } else {
+    let errorHtml = '';
+    if (error) {
+      errorHtml = `
+        <div class="alert alert-light mt-2 small">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> Error: ${error.message}
+        </div>
+      `;
+    }
+    
     return `
       <div class="d-flex align-items-center">
         <div class="rounded-circle bg-warning text-white p-2 me-3">
-          <i class="bi bi-file-earmark-pdf fs-3"></i>
+          <i class="bi bi-file-earmark-x fs-3"></i>
         </div>
         <div>
           <h5 class="mb-1">PDF Document Not Found</h5>
-          <p class="mb-0 text-warning">
-            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-            ${error ? `Error: ${error.message}` : 'The PDF version of this specification could not be found.'}
-          </p>
-          <small class="text-muted mt-2">PDF files make specifications more accessible and preserve content for offline reading.</small>
+          <p class="mb-0 text-warning"><i class="bi bi-exclamation-circle me-1"></i> No PDF version was found for this specification.</p>
         </div>
       </div>
+      ${errorHtml}
     `;
   }
 }
 
 /**
- * Format Spec-Up version information as HTML
- * @param {string|null} version - The detected Spec-Up version or null if not found
- * @returns {string} HTML string for version info
+ * Format Spec-Up version as HTML
+ * @param {string|null} version - Spec-Up version
+ * @returns {string} HTML string for Spec-Up version
  */
 function formatSpecUpVersion(version) {
   if (version) {
@@ -258,8 +240,10 @@ function formatSpecUpVersion(version) {
         </div>
         <div>
           <h5 class="mb-1">Spec-Up-T Version</h5>
-          <p class="mb-0"><code>${version}</code></p>
-          <small class="text-muted">The specification was built with Spec-Up-T version ${version}.</small>
+          <div class="d-flex align-items-center">
+            <span class="badge bg-info me-2">${version}</span>
+            <span class="text-muted">This specification is built with Spec-Up-T version ${version}.</span>
+          </div>
         </div>
       </div>
     `;
@@ -267,14 +251,11 @@ function formatSpecUpVersion(version) {
     return `
       <div class="d-flex align-items-center">
         <div class="rounded-circle bg-secondary text-white p-2 me-3">
-          <i class="bi bi-question-circle fs-3"></i>
+          <i class="bi bi-code-square fs-3"></i>
         </div>
         <div>
-          <h5 class="mb-1">Spec-Up-T Version Not Detected</h5>
-          <p class="mb-0 text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            Could not determine which version of Spec-Up-T was used to build this specification.
-          </p>
+          <h5 class="mb-1">Spec-Up-T Version</h5>
+          <p class="mb-0 text-muted"><i class="bi bi-question-circle me-1"></i> Could not determine the Spec-Up-T version.</p>
         </div>
       </div>
     `;
@@ -284,97 +265,84 @@ function formatSpecUpVersion(version) {
 /**
  * Format version information as HTML
  * @param {Object} versionInfo - Version information object
- * @returns {string} HTML string for version info
+ * @returns {string} HTML string for version information
  */
 function formatVersionInfo(versionInfo) {
   if (!versionInfo || !versionInfo.exists) {
     return `
-      <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-secondary text-white p-2 me-3">
-          <i class="bi bi-layers fs-3"></i>
-        </div>
-        <div>
-          <h5 class="mb-1">No Version History</h5>
-          <p class="mb-0 text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            This specification does not have a versions directory or previous versions.
-          </p>
-          <small class="text-muted mt-2">Version history helps track changes over time and allows referencing specific points in the specification's evolution.</small>
+      <div class="alert alert-secondary">
+        <i class="bi bi-exclamation-circle me-2"></i> No versions directory was found for this specification.
+      </div>
+    `;
+  }
+  
+  let versionsList = '';
+  if (versionInfo.versions && versionInfo.versions.length > 0) {
+    // Use baseUrl from versionInfo if available
+    let baseUrl = versionInfo.baseUrl || '';
+    
+    // Ensure baseUrl ends with a slash
+    if (baseUrl && !baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+    
+    const badges = versionInfo.versions.map(version => {
+      // Construct full URL to the version
+      const versionUrl = baseUrl + 'versions/' + version + '/';
+      return `<a href="${versionUrl}" target="_blank" class="text-decoration-none">
+        <span class="badge bg-info me-1 mb-1 p-2">${version} <i class="bi bi-box-arrow-up-right ms-1 small"></i></span>
+      </a>`;
+    }).join('');
+    
+    versionsList = `
+      <div class="mt-3">
+        <h6><i class="bi bi-tag me-2"></i>Available Versions:</h6>
+        <div class="d-flex flex-wrap">
+          ${badges}
         </div>
       </div>
     `;
   }
-
-  // Ensure we have a baseUrl for constructing version links
-  let baseUrl = versionInfo.baseUrl || '';
-  if (baseUrl && !baseUrl.endsWith('/')) {
-    baseUrl += '/';
-  }
-
-  let versionLinks = '';
-  if (versionInfo.versions && versionInfo.versions.length > 0) {
-    versionLinks = '<div class="version-list"><div class="list-group">';
-    versionInfo.versions.forEach(version => {
-      const versionUrl = `${baseUrl}versions/${version}/`;
-      versionLinks += `
-        <a href="${versionUrl}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-clock-history me-2"></i>${version}</span>
-          <span class="badge bg-primary rounded-pill">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </span>
-        </a>
-      `;
-    });
-    versionLinks += '</div></div>';
-  }
-
-  return `
-    <div>
-      <div class="d-flex align-items-center mb-3">
-        <div class="rounded-circle bg-info text-white p-2 me-3">
-          <i class="bi bi-layers fs-3"></i>
-        </div>
-        <div>
-          <h5 class="mb-1">Version History Available</h5>
-          <p class="mb-0">
-            <i class="bi bi-check-circle-fill me-1 text-success"></i>
-            This specification has ${versionInfo.count} previous version${versionInfo.count !== 1 ? 's' : ''}.
-          </p>
+  
+  const html = `
+    <div class="d-flex align-items-center">
+      <div class="rounded-circle bg-info text-white p-2 me-3">
+        <i class="bi bi-clock-history fs-3"></i>
+      </div>
+      <div>
+        <h5 class="mb-1">Version History</h5>
+        <div class="d-flex align-items-center">
+          <span class="badge bg-success me-2">${versionInfo.count}</span>
+          <span class="text-muted">version${versionInfo.count !== 1 ? 's' : ''} found in the versions directory.</span>
         </div>
       </div>
-      ${versionLinks}
     </div>
+    ${versionsList}
   `;
+  
+  return html;
 }
 
 /**
- * Format last modified information as HTML
+ * Format last modified date as HTML
  * @param {Date} lastModified - Last modified date
  * @param {Object} headers - HTTP headers
- * @returns {string} HTML string for last modified info
+ * @returns {string} HTML string for last modified date
  */
 function formatLastModified(lastModified, headers = {}) {
   if (!lastModified) {
     return `
-      <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-secondary text-white p-2 me-3">
-          <i class="bi bi-calendar-x fs-3"></i>
-        </div>
-        <div>
-          <h5 class="mb-1">Last Updated Information Unavailable</h5>
-          <p class="mb-0 text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            Could not determine when this specification was last updated.
-          </p>
-        </div>
+      <div class="alert alert-secondary">
+        <i class="bi bi-info-circle me-2"></i> Last modified date information not available.
       </div>
     `;
   }
-
-  const formattedDate = lastModified.toLocaleDateString(undefined, { 
+  
+  // Format the date nicely
+  const formattedDate = lastModified.toLocaleDateString(undefined, {
     weekday: 'long',
-    year: 'numeric', 
-    month: 'long', 
+    year: 'numeric',
+    month: 'long',
     day: 'numeric'
   });
   
@@ -383,63 +351,53 @@ function formatLastModified(lastModified, headers = {}) {
     minute: '2-digit'
   });
 
-  // Calculate how long ago the file was modified
-  const now = new Date();
-  const ageInMs = now - lastModified;
-  const ageInDays = Math.floor(ageInMs / (1000 * 60 * 60 * 24));
+  // Calculate days since last update
+  const daysSinceUpdate = Math.floor((new Date() - lastModified) / (1000 * 60 * 60 * 24));
+  let updateText = '';
   
-  let ageText = '';
-  if (ageInDays === 0) {
-    ageText = 'today';
-  } else if (ageInDays === 1) {
-    ageText = 'yesterday';
-  } else if (ageInDays < 30) {
-    ageText = `${ageInDays} days ago`;
-  } else if (ageInDays < 365) {
-    const months = Math.floor(ageInDays / 30);
-    ageText = `${months} month${months > 1 ? 's' : ''} ago`;
+  if (daysSinceUpdate === 0) {
+    updateText = '<span class="text-success">Updated today</span>';
+  } else if (daysSinceUpdate === 1) {
+    updateText = '<span class="text-success">Updated yesterday</span>';
+  } else if (daysSinceUpdate < 30) {
+    updateText = `<span class="text-success">Updated ${daysSinceUpdate} days ago</span>`;
+  } else if (daysSinceUpdate < 90) {
+    updateText = `<span class="text-warning">Updated ${Math.floor(daysSinceUpdate / 30)} month(s) ago</span>`;
   } else {
-    const years = Math.floor(ageInDays / 365);
-    const remainingMonths = Math.floor((ageInDays % 365) / 30);
-    ageText = `${years} year${years > 1 ? 's' : ''}${remainingMonths > 0 ? ` and ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}` : ''} ago`;
+    updateText = `<span class="text-danger">Updated ${Math.floor(daysSinceUpdate / 30)} months ago</span>`;
   }
-
+  
   return `
     <div class="d-flex align-items-center">
       <div class="rounded-circle bg-secondary text-white p-2 me-3">
         <i class="bi bi-calendar-check fs-3"></i>
       </div>
       <div>
-        <h5 class="mb-1">Last Updated</h5>
-        <p class="mb-0">
-          <i class="bi bi-clock me-1"></i>
-          <strong>${formattedDate}</strong> at ${formattedTime} <span class="badge bg-secondary">${ageText}</span>
-        </p>
-        <small class="text-muted mt-2">This information is based on the server's last-modified header response.</small>
+        <h5 class="mb-1">Last Website Update</h5>
+        <p class="mb-1">${formattedDate} at ${formattedTime}</p>
+        <p class="mb-0">${updateText}</p>
       </div>
     </div>
   `;
 }
 
 /**
- * Generate HTML footer with links and information
+ * Generate HTML footer
  * @param {string} version - Specalyzer version
- * @param {string} url - The URL that was analyzed
- * @returns {string} HTML footer string
+ * @returns {string} HTML string for footer
  */
-function generateHtmlFooter(version, url) {
+function generateHtmlFooter(version) {
   const currentYear = new Date().getFullYear();
-
+  
   return `
     <div class="report-footer">
       <div class="row">
-        <div class="col-md-6 text-md-start text-center mb-3 mb-md-0">
-          <p class="mb-1">Generated with Specalyzer v${version}</p>
-          <small>A tool for analyzing specifications built with Spec-Up-T</small>
+        <div class="col-md-6">
+          <p><i class="bi bi-tools me-1"></i> Generated by <strong>Specalyzer v${version || 'unknown'}</strong></p>
         </div>
-        <div class="col-md-6 text-md-end text-center">
-          <p class="mb-1">
-            <a href="https://github.com/blockchainbird/specalyzer" target="_blank" class="btn btn-sm btn-outline-secondary">
+        <div class="col-md-6 text-md-end">
+          <p>
+            <a href="https://github.com/blockchainbird/specalyzer" target="_blank" class="text-decoration-none">
               <i class="bi bi-github me-1"></i> GitHub Repository
             </a>
           </p>
