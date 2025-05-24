@@ -95,13 +95,42 @@ function getSpecUpTVersionFromPackageJson(pkg, depName = 'spec-up-t') {
 function isUsingSpecUp(pkg) {
   if (!pkg) return false;
   
-  // Check if spec-up is listed as a dependency
+  // Method 1: Check if the package name is explicitly "spec-up"
+  // This is the most reliable indicator
+  if (pkg.name === 'spec-up') {
+    return true;
+  }
+  
+  // Method 2: Check for characteristic spec-up scripts
+  // Original spec-up has very specific script patterns
+  if (pkg.scripts) {
+    const hasSpecUpScripts = !!(
+      pkg.scripts.edit && pkg.scripts.edit.includes('node -e \"require(\'./index\')') ||
+      pkg.scripts.render && pkg.scripts.render.includes('node -e \"require(\'./index\')')
+    );
+    
+    if (hasSpecUpScripts) {
+      return true;
+    }
+  }
+  
+  // Method 3: Check if spec-up is listed as a dependency
   const hasSpecUpDep = !!(
     (pkg.dependencies && pkg.dependencies['spec-up']) ||
     (pkg.devDependencies && pkg.devDependencies['spec-up'])
   );
   
-  // Check if repository URL references spec-up repository
+  // Method 4: Check for spec-up characteristic dependencies
+  // Original spec-up has specific direct dependencies
+  const hasSpecUpTypicalDeps = !!(
+    pkg.dependencies && 
+    pkg.dependencies['markdown-it'] && 
+    pkg.dependencies['gulp'] &&
+    !pkg.dependencies['spec-up-t']
+  );
+  
+  // Method 5: Check if repository URL references spec-up repository
+  // This is less reliable but still useful
   const hasSpecUpRepo = !!(
     pkg.repository &&
     typeof pkg.repository === 'object' &&
@@ -109,8 +138,8 @@ function isUsingSpecUp(pkg) {
     pkg.repository.url.includes('github.com/decentralized-identity/spec-up')
   );
   
-  // Return true if either condition is met
-  return hasSpecUpDep || hasSpecUpRepo;
+  // Return true if any of the conditions are met
+  return hasSpecUpDep || hasSpecUpRepo || hasSpecUpTypicalDeps;
 }
 
 /**
@@ -121,17 +150,30 @@ function isUsingSpecUp(pkg) {
 function getSpecUpVersionFromPackageJson(pkg) {
   if (!pkg) return null;
   
-  // First, check if it's a dependency
+  // Priority 1: If the package itself is spec-up, use its version
+  // This is the most common and reliable case for spec-up repositories
+  if (pkg.name === 'spec-up' && pkg.version) {
+    return pkg.version;
+  }
+  
+  // Priority 2: Check if it's a dependency
   const depVersion = (pkg.dependencies && pkg.dependencies['spec-up']) ||
     (pkg.devDependencies && pkg.devDependencies['spec-up']);
 
   // If it's a dependency, return the version
   if (depVersion) return depVersion;
-
-  // If it's not a dependency, check if the package itself is spec-up
-  // This happens when the repository is the spec-up repo itself or a fork/clone of it
-  if (pkg.name === 'spec-up' && pkg.version) {
-    return pkg.version;
+  
+  // Priority 3: Try to extract from repository URL if it's pointing to a specific version/tag
+  if (pkg.repository && 
+      typeof pkg.repository === 'object' && 
+      pkg.repository.url) {
+    
+    const repoUrl = pkg.repository.url;
+    // Look for version tags in URL like "/v0.10.6" or similar patterns
+    const versionMatch = repoUrl.match(/\/v(\d+\.\d+\.\d+)/);
+    if (versionMatch && versionMatch[1]) {
+      return versionMatch[1];
+    }
   }
   
   return null;
