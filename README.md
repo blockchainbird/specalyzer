@@ -5,12 +5,11 @@ A CLI tool to analyze specifications built with Spec-Up or Spec-Up-T.
 ## Usage
 
 ```bash
-npx specalyzer <url> [--html]
+npx specalyzer <url>
 ```
 
 Where:
 - `<url>` is the URL of a specification website built with Spec-Up or Spec-Up-T.
-- `--html` or `-h` (optional) generates an HTML report and opens it in your default browser.
 
 ## Features
 
@@ -21,14 +20,9 @@ Where:
 
 ## Examples
 
-Console output:
-```bash
-npx specalyzer example.com/my-spec
-```
-
 HTML report:
 ```bash
-npx specalyzer example.com/my-spec --html
+npx specalyzer example.com/my-spec
 ```
 
 ## Development
