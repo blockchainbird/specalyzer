@@ -7,8 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const open = require('open');
 const chalk = require('chalk');
-const formatter = require('./formatter');
-const repoUrl = require('./repoUrl');
 
 /**
  * Generate HTML boilerplate with Bootstrap styling
