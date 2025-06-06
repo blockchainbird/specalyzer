@@ -41,16 +41,13 @@ async function fetchAndAnalyzeHtml(url) {
         return repoUrl;
       }
       // If we couldn't extract a URL string, return the original URL
-      console.log(`Note: Could not extract repository URL as string. Using original URL.`);
       return url;
     } else {
       // If repo is neither string nor object, return the original URL
-      console.log(`Note: Invalid repository data type. Using original URL.`);
       return url;
     }
   } catch (error) {
     // If we can't fetch the HTML, assume the URL is the repo itself
-    console.log(`Note: Treating ${url} as a repository URL directly`);
     return url;
   }
 }
@@ -63,9 +60,9 @@ async function fetchAndAnalyzeHtml(url) {
 async function checkAndPrintPdfStatus(url) {
   try {
     const exists = await fetcher.checkIndexPdf(url);
-    reporter.printPdfStatus(exists);
+    // reporter.printPdfStatus(exists); // Removed console reporting
   } catch (error) {
-    reporter.printPdfStatus(false, error);
+    // reporter.printPdfStatus(false, error); // Removed console reporting
   }
 }
 
@@ -96,7 +93,7 @@ async function analyzeSpec(normalizedUrl, options = {}) {
       result.lastModified = lastModifiedInfo.date;
       result.headers = lastModifiedInfo.headers;
     } catch (error) {
-      console.log(`Warning: Could not get last modified date: ${error.message}`);
+      // Do not log to console, allow HTML report to show this
     }
     
     // Fetch and analyze HTML
