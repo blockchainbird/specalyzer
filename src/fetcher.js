@@ -5,6 +5,7 @@
 const https = require('https');
 const pdfCheck = require('./pdfCheck');
 const specupVersion = require('./specupVersion');
+const chalk = require('chalk');
 
 /**
  * Fetches index.html from a URL
@@ -42,16 +43,16 @@ function checkIndexPdf(url) {
  */
 function fetchPackageJson(url) {
   return new Promise((resolve, reject) => {
-    console.log(`Fetching package.json from: ${url}`);
+    console.log(chalk.cyan(`📄 Fetching package.json from: ${url}`));
     specupVersion.fetchJson(url, (err, data) => {
       if (err) {
         // Don't log 404 errors as they're expected when trying different branches
         if (!err.message.includes('HTTP Error: 404')) {
-          console.log(`Error fetching package.json: ${err.message}`);
+          console.log(chalk.red(`❌ Error fetching package.json: ${err.message}`));
         }
         reject(err);
       } else {
-        console.log(`Successfully fetched package.json from: ${url}`);
+        console.log(chalk.green(`✅ Successfully fetched package.json from: ${url}`));
         resolve(data);
       }
     });
@@ -85,7 +86,7 @@ function getLastModified(url) {
       });
     }).on('error', (err) => {
       // Don't fail the whole process for this, just return null
-      console.error(`Error getting last modified date: ${err.message}`);
+      console.error(chalk.red(`⚠️  Error getting last modified date: ${err.message}`));
       resolve({
         date: null,
         headers: {}

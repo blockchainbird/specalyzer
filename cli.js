@@ -6,6 +6,7 @@
 
 const fetcher = require('./src/fetcher');
 const analyzer = require('./src/analyzer');
+const chalk = require('chalk');
 
 /**
  * Parse command line arguments
@@ -39,31 +40,32 @@ async function main() {
   const args = parseArguments();
   
   if (!args.url) {
-    console.error('Usage: npx specalyzer <url>');
-    console.error('  where <url> is either:');
-    console.error('  - A URL to a deployed Spec-Up site (e.g., https://example.com/spec)');
-    console.error('  - A GitHub repository URL (e.g., https://github.com/org/repo)');
+    console.error(chalk.red('❌ Error: Missing URL argument.'));
+    console.error(chalk.yellow('📖 Usage: npx specalyzer <url>'));
+    console.error(chalk.cyan('📍 where <url> is either:'));
+    console.error(chalk.cyan('  🌐 A URL to a deployed Spec-Up site (e.g., https://example.com/spec)'));
+    console.error(chalk.cyan('  🐙 A GitHub repository URL (e.g., https://github.com/org/repo)'));
     process.exit(1);
   }
 
   // Version info
   const pkgJson = require('./package.json');
   const version = pkgJson.version || '1.0.0';
-  console.log(`Specalyzer v${version}`);
+  console.log(chalk.blue(`ℹ️  Specalyzer v${version}`));
 
   const normalizedUrl = fetcher.normalizeUrl(args.url);
-  console.log(`Analyzing: ${normalizedUrl}\n`);
+  console.log(chalk.magenta(`🔍 Analyzing: ${normalizedUrl}\n`));
 
   try {
-    console.log('Generating HTML report…');
+    console.log(chalk.yellow('⏳ Generating HTML report…'));
     const filePath = await analyzer.generateHtmlReport(normalizedUrl, version);
-    console.log(`\nHTML report generated and opened in your default browser: ${filePath}`);
-    console.log('TIP: You can share this HTML file with others or save it for reference.');
+    console.log(chalk.green(`\n✅ HTML report generated and opened in your default browser: ${filePath}`));
+    console.log(chalk.blue('💡 TIP: You can share this HTML file with others or save it for reference.'));
     
     // Explicitly exit
     process.exit(0);
   } catch (error) {
-    console.error(`\nError: ${error.message}`);
+    console.error(chalk.red(`\n❌ Error: ${error.message}`));
     process.exit(1);
   }
 }

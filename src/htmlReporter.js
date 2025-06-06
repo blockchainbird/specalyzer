@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const open = require('open');
+const chalk = require('chalk');
 const formatter = require('./formatter');
 const repoUrl = require('./repoUrl');
 
@@ -490,13 +491,13 @@ async function saveAndOpenReport(html, url) {
   
   // Write the file
   fs.writeFileSync(filePath, html);
-  console.log(`Report saved to: ${filePath}`);
+  console.log(chalk.green(`💾 Report saved to: ${filePath}`));
   
   // Open in default browser
   try {
     await open(filePath);
   } catch (error) {
-    console.error(`Could not open report in browser: ${error.message}`);
+    console.error(chalk.red(`❌ Could not open report in browser: ${error.message}`));
   }
   
   return filePath;

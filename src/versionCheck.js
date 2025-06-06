@@ -4,8 +4,8 @@
  */
 
 const https = require('https');
-const url = require('url');
-const path = require('path');
+const fetcher = require('./fetcher');
+const chalk = require('chalk');
 
 /**
  * Checks if there's a versions directory in the same directory as index.html
@@ -42,7 +42,7 @@ async function checkVersions(baseUrl) {
       baseUrl: baseUrl // Include the base URL for constructing version links
     };
   } catch (error) {
-    console.error('Error checking versions:', error.message);
+    console.error(chalk.red(`❌ Error checking versions: ${error.message}`));
     return {
       exists: false,
       count: 0,
@@ -60,7 +60,7 @@ async function checkVersions(baseUrl) {
  */
 function checkDirectoryExists(url) {
   return new Promise((resolve) => {
-    console.log(`Checking directory: ${url}`);
+    console.log(chalk.blue(`📁 Checking directory: ${url}`));
     const parsedUrl = new URL(url);
     
     // Choose the right module based on protocol
@@ -77,17 +77,17 @@ function checkDirectoryExists(url) {
     const req = protocol.request(options, (res) => {
       // Status codes 200, 301, 302 indicate the directory exists
       const exists = res.statusCode >= 200 && res.statusCode < 400;
-      console.log(`Directory ${url}: ${exists ? 'exists' : 'does not exist'} (status: ${res.statusCode})`);
+      console.log(chalk.cyan(`📂 Directory ${url}: ${exists ? 'exists' : 'does not exist'} (status: ${res.statusCode})`));
       resolve(exists);
     });
     
     req.on('error', (err) => {
-      console.log(`Error checking directory ${url}: ${err.message}`);
+      console.log(chalk.red(`❌ Error checking directory ${url}: ${err.message}`));
       resolve(false);
     });
     
     req.on('timeout', () => {
-      console.log(`Timeout checking directory ${url}`);
+      console.log(chalk.yellow(`⏰ Timeout checking directory ${url}`));
       req.abort();
       resolve(false);
     });
@@ -105,14 +105,14 @@ function checkDirectoryExists(url) {
  * @returns {Promise<string[]>} Array of version directory names (e.g., ['v1', 'v2'])
  */
 async function listVersionDirectories(versionsUrl) {
-  console.log(`Checking for version directories at: ${versionsUrl}`);
+  console.log(chalk.magenta(`🔍 Checking for version directories at: ${versionsUrl}`));
   const versionDirs = [];
   let missingCount = 0;
   const maxMissingVersions = 3; // Allow up to 3 missing versions before stopping
   
   // First check for a GitHub repository structure if it's GitHub
   if (versionsUrl.includes('github.com')) {
-    console.log('GitHub repository detected - checking for versions through GitHub API...');
+    console.log(chalk.blue(`🐙 GitHub repository detected - checking for versions through GitHub API...`));
     // For GitHub, we'd need to use the GitHub API but we'll skip for now
   }
   

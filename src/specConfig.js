@@ -4,6 +4,7 @@
 
 const { JSDOM } = require('jsdom');
 const vm = require('vm');
+const chalk = require('chalk');
 
 /**
  * Find script containing specConfig
@@ -67,7 +68,7 @@ function extractRepoUrlFromSpecConfig(html) {
       // Currently support only github
       if (config.source.host.toLowerCase() === 'github') {
         const url = `https://github.com/${config.source.account}/${config.source.repo}`;
-        console.log(`Constructed GitHub URL: ${url}`);
+        console.log(chalk.green(`🔗 Constructed GitHub URL: ${url}`));
         return url;
       }
     }

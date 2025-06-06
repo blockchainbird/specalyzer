@@ -3,6 +3,7 @@
 
 const https = require('https');
 const http = require('http');
+const chalk = require('chalk');
 
 /**
  * Checks if index.pdf exists at the given URL (callback style)
@@ -11,7 +12,7 @@ const http = require('http');
  */
 function checkIndexPdfExists(baseUrl, callback) {
   const url = baseUrl.replace(/\/$/, '') + '/index.pdf';
-  console.log(`Checking for PDF at: ${url}`);
+  console.log(chalk.blue(`📋 Checking for PDF at: ${url}`));
 
   // Choose the appropriate protocol handler
   const handler = url.startsWith('https:') ? https : http;
@@ -26,14 +27,14 @@ function checkIndexPdfExists(baseUrl, callback) {
       callback(null, false);
     } else if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
       // Handle redirects
-      console.log(`Following redirect to: ${res.headers.location}`);
+      console.log(chalk.yellow(`🔄 Following redirect to: ${res.headers.location}`));
       const redirectUrl = new URL(res.headers.location, url).href;
       checkIndexPdfExists(redirectUrl, callback);
     } else {
       callback(new Error(`Unexpected status code: ${res.statusCode} (${res.statusMessage || 'Unknown'})`));
     }
   }).on('error', err => {
-    console.log(`Error checking for PDF: ${err.message}`);
+    console.log(chalk.red(`❌ Error checking for PDF: ${err.message}`));
     callback(err);
   });
   
