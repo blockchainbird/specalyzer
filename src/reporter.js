@@ -36,15 +36,15 @@ function printPdfStatus(exists, error) {
 }
 
 /**
- * Print spec-up-t version
+ * Print spec-up-t build tool version
  * @param {string|null} version - The spec-up-t version if found
  */
 function printSpecUpVersion(version) {
   const message = version 
-    ? `version in package.json: ${colors.bold}${version}${colors.reset}` 
+    ? `build tool version in package.json: ${colors.bold}${version}${colors.reset}` 
     : 'is not listed as a dependency in package.json';
   
-  console.log(format.info('spec-up-t', message));
+  console.log(format.info('Spec-Up-T (Build Tool)', message));
   
   // Add explanation about version ranges if a version with range symbols is detected
   if (version && (version.includes('^') || version.includes('~') || version.includes('*'))) {
@@ -53,15 +53,15 @@ function printSpecUpVersion(version) {
 }
 
 /**
- * Print original spec-up version
+ * Print original spec-up build tool version
  * @param {string|null} version - The original spec-up version if found
  */
 function printSpecUpOriginalVersion(version) {
   const message = version 
-    ? `version in package.json: ${colors.bold}${version}${colors.reset}` 
+    ? `build tool version in package.json: ${colors.bold}${version}${colors.reset}` 
     : 'is detected but version is not listed in package.json';
   
-  console.log(format.info('spec-up (original)', message));
+  console.log(format.info('Spec-Up Original (Build Tool)', message));
   
   // Add explanation about version ranges if a version with range symbols is detected
   if (version && (version.includes('^') || version.includes('~') || version.includes('*'))) {
@@ -138,10 +138,10 @@ module.exports.fetchAndPrintVersion = fetchAndPrintVersion;
 module.exports.printVersionInfo = printVersionInfo;
 
 /**
- * Print information about versions directory and version subdirectories
+ * Print information about specification version history and available versions
  * @param {Object} versionInfo - Version information object from versionCheck
  */
 function printVersionInfo(versionInfo) {
   const formattedInfo = versionCheck.formatVersionInfo(versionInfo);
-  console.log(format.info('Versions', formattedInfo));
+  console.log(format.info('Specification Version History', formattedInfo));
 }
