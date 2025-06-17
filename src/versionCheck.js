@@ -147,19 +147,19 @@ async function listVersionDirectories(versionsUrl) {
 }
 
 /**
- * Format version information for display
+ * Format specification version history information for display
  * @param {Object} versionInfo - Version information object
  * @returns {string} Formatted string for display
  */
 function formatVersionInfo(versionInfo) {
   if (!versionInfo.exists) {
-    return 'No versions directory found.';
+    return 'No specification version history found. This specification does not have archived versions available.';
   }
   
   const versionCount = versionInfo.count;
   const versions = versionInfo.versions.join(', ');
   
-  return `Versions directory exists with ${versionCount} version${versionCount !== 1 ? 's' : ''}: ${versions}`;
+  return `Specification version history found: ${versionCount} archived version${versionCount !== 1 ? 's' : ''} available (${versions})`;
 }
 
 module.exports = {

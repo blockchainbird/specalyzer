@@ -100,23 +100,12 @@ async function analyzeSpec(normalizedUrl, options = {}) {
     const repo = await fetchAndAnalyzeHtml(normalizedUrl);
     result.repo = repo;
     
-    // Print repository information (console only)
-    if (!options.htmlOnly) {
-      reporter.printRepositoryInfo(repo);
-    }
-    
     // Check PDF existence
     try {
       const exists = await fetcher.checkIndexPdf(normalizedUrl);
       result.pdfExists = exists;
-      if (!options.htmlOnly) {
-        reporter.printPdfStatus(exists);
-      }
     } catch (pdfError) {
       result.pdfError = pdfError;
-      if (!options.htmlOnly) {
-        reporter.printPdfStatus(false, pdfError);
-      }
     }
     
     // Get and print spec-up-t version
@@ -154,51 +143,27 @@ async function analyzeSpec(normalizedUrl, options = {}) {
           // Get the original spec-up version
           const originalVersion = specupVersion.getSpecUpVersionFromPackageJson(pkg);
           result.specUpOriginalVersion = originalVersion;
-          
-          if (!options.htmlOnly) {
-            reporter.printSpecUpOriginalVersion(originalVersion);
-          }
         } else {
           // Check for spec-up-t version as before
           const version = specupVersion.getSpecUpTVersionFromPackageJson(pkg);
           result.specUpVersion = version;
-          
-          if (!options.htmlOnly) {
-            reporter.printSpecUpVersion(version);
-          }
         }
       }
     } catch (versionError) {
-      if (!options.htmlOnly) {
-        console.error(formatter.format.error(`Error checking spec-up-t version: ${versionError.message}`));
-      }
+      // Version error will be shown in HTML report
     }
     
     // Check for versions directory and count version subdirectories
     try {
       const versionInfo = await versionCheck.checkVersions(normalizedUrl);
       result.versionInfo = versionInfo;
-      
-      if (!options.htmlOnly) {
-        reporter.printVersionInfo(versionInfo);
-      }
     } catch (versionError) {
-      if (!options.htmlOnly) {
-        console.error(formatter.format.error(`Error checking versions: ${versionError.message}`));
-      }
-    }
-    
-    if (!options.htmlOnly) {
-      reporter.printFooter();
+      // Version check error will be shown in HTML report
     }
     
     return result;
   } catch (error) {
     result.error = error;
-    
-    if (!options.htmlOnly) {
-      console.error('\n' + formatter.format.error(`${error.message}\n`));
-    }
     
     if (!options.suppressExit) {
       process.exit(1);
@@ -247,25 +212,25 @@ async function generateHtmlReport(normalizedUrl, version) {
     pdfStatus
   );
   
-  // Spec version section (either spec-up-t or original spec-up)
+  // Build tool version section (either spec-up-t or original spec-up)
   if (result.isUsingSpecUp) {
     html += htmlReporter.createCardSection(
-      'spec-up Version (Original)',
+      'Build Tool Version (Original Spec-Up)',
       htmlReporter.formatSpecUpVersion(result.specUpOriginalVersion, true),
       'success'
     );
   } else {
     html += htmlReporter.createCardSection(
-      'spec-up-t Version',
+      'Build Tool Version (Spec-Up-T)',
       htmlReporter.formatSpecUpVersion(result.specUpVersion, false),
       'info'
     );
   }
   
-  // Version info section
+  // Specification version history section
   if (result.versionInfo) {
     html += htmlReporter.createCardSection(
-      'Versions',
+      'Specification Version History',
       htmlReporter.formatVersionInfo(result.versionInfo),
       'info'
     );
