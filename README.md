@@ -1,5 +1,8 @@
 # Specalyzer
 
+[![npm version](https://badge.fury.io/js/specalyzer.svg)](https://www.npmjs.com/package/specalyzer)
+[![NPM Downloads](https://img.shields.io/npm/dm/specalyzer.svg?style=flat)](https://npmjs.org/package/specalyzer)
+
 A CLI tool to analyze specifications built with Spec-Up or Spec-Up-T.
 
 ## Usage
@@ -9,6 +12,7 @@ npx specalyzer <url>
 ```
 
 Where:
+
 - `<url>` is the URL of a specification website built with Spec-Up or Spec-Up-T or a GitHub repository URL.
 
 ## Features
@@ -40,7 +44,7 @@ npx specalyzer https://github.com/organization/repository
 
 The codebase has been modularized to reduce cognitive complexity:
 
-```
+```plaintext
 cli.js                 - Main entry point
 package.json           - Package configuration
 src/
