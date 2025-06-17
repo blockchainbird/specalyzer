@@ -250,21 +250,21 @@ function formatPdfStatus(exists, error = null) {
  * @returns {string} HTML string for version info
  */
 function formatSpecUpVersion(version, isOriginal = false) {
-  const toolName = isOriginal ? 'Spec-Up Version (Original)' : 'Spec-Up-T Version';
+  const toolName = isOriginal ? 'Build Tool: Spec-Up (Original)' : 'Build Tool: Spec-Up-T';
   const bgColor = isOriginal ? 'success' : 'info';
   const description = isOriginal 
-    ? `The specification was built with the original Spec-Up version ${version}.`
-    : `The specification was built with Spec-Up-T version ${version}.`;
-  const notDetectedTitle = isOriginal ? 'Spec-Up (Original)' : 'Spec-Up-T Version Not Detected';
+    ? `This specification was built using the original Spec-Up build tool (version ${version}). This is the GitHub repo/npm package version that generated the HTML specification.`
+    : `This specification was built using Spec-Up-T build tool (version ${version}). This is the GitHub repo/npm package version that generated the HTML specification.`;
+  const notDetectedTitle = isOriginal ? 'Build Tool: Spec-Up (Original)' : 'Build Tool: Spec-Up-T Not Detected';
   const notDetectedMessage = isOriginal
-    ? 'The specification was built with the original Spec-Up but the version is not specified.'
-    : 'Could not determine which version of Spec-Up-T was used to build this specification.';
+    ? 'This specification was built using the original Spec-Up build tool, but the version is not specified in package.json.'
+    : 'Could not determine which version of the Spec-Up-T build tool was used to generate this specification.';
 
   if (version) {
     return `
       <div class="d-flex align-items-center">
         <div class="rounded-circle bg-${bgColor} text-white p-2 me-3">
-          <i class="bi bi-code-square fs-3"></i>
+          <i class="bi bi-hammer fs-3"></i>
         </div>
         <div>
           <h5 class="mb-1">${toolName}</h5>
@@ -273,7 +273,8 @@ function formatSpecUpVersion(version, isOriginal = false) {
           <div class="mt-2 p-2 bg-light rounded">
             <small class="text-info">
               <i class="bi bi-info-circle me-1"></i>
-              <strong>Version Range Guide:</strong> 
+              <strong>About Build Tool Versions:</strong> 
+              This shows the version of the GitHub repository/npm package used to generate the specification HTML.
               Symbols like <code>^</code>, <code>~</code>, or <code>*</code> indicate version ranges, not exact versions.
               <code>^1.0.8</code> means "compatible with 1.0.8" (allows 1.x.x but not 2.0.0).
               <code>~1.0.8</code> means "reasonably close to 1.0.8" (allows 1.0.x but not 1.1.0).
@@ -285,8 +286,8 @@ function formatSpecUpVersion(version, isOriginal = false) {
   } else {
     return `
       <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-secondary text-white p-2 me-3">
-          <i class="bi bi-question-circle fs-3"></i>
+        <div class="rounded-circle bg-warning text-white p-2 me-3">
+          <i class="bi bi-hammer fs-3"></i>
         </div>
         <div>
           <h5 class="mb-1">${notDetectedTitle}</h5>
@@ -294,6 +295,13 @@ function formatSpecUpVersion(version, isOriginal = false) {
             <i class="bi bi-info-circle me-1"></i>
             ${notDetectedMessage}
           </p>
+          <div class="mt-2 p-2 bg-light rounded">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>What is a Build Tool Version?</strong> 
+              This refers to the version of the software (GitHub repo/npm package) used to transform the specification source files into the final HTML specification you're viewing.
+            </small>
+          </div>
         </div>
       </div>
     `;
@@ -310,15 +318,22 @@ function formatVersionInfo(versionInfo) {
     return `
       <div class="d-flex align-items-center">
         <div class="rounded-circle bg-secondary text-white p-2 me-3">
-          <i class="bi bi-layers fs-3"></i>
+          <i class="bi bi-archive fs-3"></i>
         </div>
         <div>
-          <h5 class="mb-1">No Version History</h5>
+          <h5 class="mb-1">No Specification Version History</h5>
           <p class="mb-0 text-muted">
             <i class="bi bi-info-circle me-1"></i>
-            This specification does not have a versions directory or previous versions.
+            This specification does not have archived versions or release history available.
           </p>
-          <small class="text-muted mt-2">Version history helps track changes over time and allows referencing specific points in the specification's evolution.</small>
+          <div class="mt-2 p-2 bg-light rounded">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>What is Specification Version History?</strong> 
+              This refers to different releases or versions of the specification content itself (not the build tool). 
+              These are typically stored in a "versions" directory and represent different points in time when the specification was published.
+            </small>
+          </div>
         </div>
       </div>
     `;
@@ -351,14 +366,23 @@ function formatVersionInfo(versionInfo) {
     <div>
       <div class="d-flex align-items-center mb-3">
         <div class="rounded-circle bg-info text-white p-2 me-3">
-          <i class="bi bi-layers fs-3"></i>
+          <i class="bi bi-archive fs-3"></i>
         </div>
         <div>
-          <h5 class="mb-1">Version History Available</h5>
+          <h5 class="mb-1">Specification Version History Available</h5>
           <p class="mb-0">
             <i class="bi bi-check-circle-fill me-1 text-success"></i>
-            This specification has ${versionInfo.count} previous version${versionInfo.count !== 1 ? 's' : ''}.
+            This specification has ${versionInfo.count} archived version${versionInfo.count !== 1 ? 's' : ''} available.
           </p>
+          <div class="mt-2 p-2 bg-light rounded">
+            <small class="text-info">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>About Specification Versions:</strong> 
+              These are different releases of the specification content itself (not the build tool). 
+              Each version represents a point in time when the specification was published with specific content, 
+              allowing you to reference or compare different iterations of the specification.
+            </small>
+          </div>
         </div>
       </div>
       ${versionLinks}
