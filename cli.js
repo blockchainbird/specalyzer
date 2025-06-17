@@ -15,16 +15,20 @@ const chalk = require('chalk');
 function parseArguments() {
   const args = {
     url: null,
+    html: true  // Always generate HTML reports
   };
   
   // Skip first two elements (node executable and script path)
   const cliArgs = process.argv.slice(2);
   
-  // Parse arguments
+  // Parse arguments - only look for URL, ignore other flags
   for (let i = 0; i < cliArgs.length; i++) {
     const arg = cliArgs[i];
     
-    if (!args.url) {
+    if (arg === '--html') {
+      // Keep for backwards compatibility but it's always true
+      continue;
+    } else if (!args.url) {
       args.url = arg;
     }
   }
@@ -45,6 +49,7 @@ async function main() {
     console.error(chalk.cyan('📍 where <url> is either:'));
     console.error(chalk.cyan('  🌐 A URL to a deployed Spec-Up site (e.g., https://example.com/spec)'));
     console.error(chalk.cyan('  🐙 A GitHub repository URL (e.g., https://github.com/org/repo)'));
+    console.error(chalk.cyan('📍 The tool will automatically generate an HTML report.'));
     process.exit(1);
   }
 
