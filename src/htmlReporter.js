@@ -244,21 +244,41 @@ function formatPdfStatus(exists, error = null) {
 }
 
 /**
- * Format Spec-Up version information as HTML
+ * Format spec-up version information as HTML (supports both original and TypeScript variants)
  * @param {string|null} version - The detected Spec-Up version or null if not found
+ * @param {boolean} isOriginal - Whether this is the original spec-up (true) or spec-up-t (false)
  * @returns {string} HTML string for version info
  */
-function formatSpecUpVersion(version) {
+function formatSpecUpVersion(version, isOriginal = false) {
+  const toolName = isOriginal ? 'Spec-Up Version (Original)' : 'Spec-Up-T Version';
+  const bgColor = isOriginal ? 'success' : 'info';
+  const description = isOriginal 
+    ? `The specification was built with the original Spec-Up version ${version}.`
+    : `The specification was built with Spec-Up-T version ${version}.`;
+  const notDetectedTitle = isOriginal ? 'Spec-Up (Original)' : 'Spec-Up-T Version Not Detected';
+  const notDetectedMessage = isOriginal
+    ? 'The specification was built with the original Spec-Up but the version is not specified.'
+    : 'Could not determine which version of Spec-Up-T was used to build this specification.';
+
   if (version) {
     return `
       <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-info text-white p-2 me-3">
+        <div class="rounded-circle bg-${bgColor} text-white p-2 me-3">
           <i class="bi bi-code-square fs-3"></i>
         </div>
         <div>
-          <h5 class="mb-1">Spec-Up-T Version</h5>
+          <h5 class="mb-1">${toolName}</h5>
           <p class="mb-0"><code>${version}</code></p>
-          <small class="text-muted">The specification was built with Spec-Up-T version ${version}.</small>
+          <small class="text-muted">${description}</small>
+          <div class="mt-2 p-2 bg-light rounded">
+            <small class="text-info">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>Version Range Guide:</strong> 
+              Symbols like <code>^</code>, <code>~</code>, or <code>*</code> indicate version ranges, not exact versions.
+              <code>^1.0.8</code> means "compatible with 1.0.8" (allows 1.x.x but not 2.0.0).
+              <code>~1.0.8</code> means "reasonably close to 1.0.8" (allows 1.0.x but not 1.1.0).
+            </small>
+          </div>
         </div>
       </div>
     `;
@@ -269,10 +289,10 @@ function formatSpecUpVersion(version) {
           <i class="bi bi-question-circle fs-3"></i>
         </div>
         <div>
-          <h5 class="mb-1">Spec-Up-T Version Not Detected</h5>
+          <h5 class="mb-1">${notDetectedTitle}</h5>
           <p class="mb-0 text-muted">
             <i class="bi bi-info-circle me-1"></i>
-            Could not determine which version of Spec-Up-T was used to build this specification.
+            ${notDetectedMessage}
           </p>
         </div>
       </div>
@@ -501,49 +521,12 @@ async function saveAndOpenReport(html, url) {
   return filePath;
 }
 
-/**
- * Format spec-up (original) version for HTML display
- * @param {string|null} version - The spec-up version if found
- * @returns {string} HTML snippet with formatted version information
- */
-function formatSpecUpOriginalVersion(version) {
-  // Using a different color to differentiate from spec-up-t
-  if (version) {
-    return `
-      <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-success text-white p-2 me-3">
-          <i class="bi bi-code-square fs-3"></i>
-        </div>
-        <div>
-          <h5 class="mb-1">Spec-Up Version (Original)</h5>
-          <p class="mb-0"><code>${version}</code></p>
-          <small class="text-muted">The specification was built with the original Spec-Up version ${version}.</small>
-        </div>
-      </div>
-    `;
-  } else {
-    return `
-      <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-success text-white p-2 me-3">
-          <i class="bi bi-code-square fs-3"></i>
-        </div>
-        <div>
-          <h5 class="mb-1">Spec-Up (Original)</h5>
-          <p class="mb-0">Version not specified</p>
-          <small class="text-muted">The specification was built with the original Spec-Up but the version is not specified.</small>
-        </div>
-      </div>
-    `;
-  }
-}
-
 module.exports = {
   generateHtmlBoilerplate,
   createCardSection,
   formatRepositoryInfo,
   formatPdfStatus,
   formatSpecUpVersion,
-  formatSpecUpOriginalVersion,
   formatVersionInfo,
   formatLastModified,
   generateHtmlFooter,

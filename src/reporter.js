@@ -45,6 +45,11 @@ function printSpecUpVersion(version) {
     : 'is not listed as a dependency in package.json';
   
   console.log(format.info('spec-up-t', message));
+  
+  // Add explanation about version ranges if a version with range symbols is detected
+  if (version && (version.includes('^') || version.includes('~') || version.includes('*'))) {
+    console.log(format.info('💡 TIP', `Symbols like ^ ~ * indicate version ranges, not exact versions. ${colors.bold}${version}${colors.reset} allows compatible versions within semantic versioning rules.`));
+  }
 }
 
 /**
@@ -57,18 +62,11 @@ function printSpecUpOriginalVersion(version) {
     : 'is detected but version is not listed in package.json';
   
   console.log(format.info('spec-up (original)', message));
-}
-
-/**
- * Print spec-up-t version info
- * @param {string|null} version - Version string
- */
-function printSpecUpVersion(version) {
-  const message = version 
-    ? `version in package.json: ${colors.bold}${version}${colors.reset}` 
-    : 'is not listed as a dependency in package.json';
   
-  console.log(format.info('spec-up-t', message));
+  // Add explanation about version ranges if a version with range symbols is detected
+  if (version && (version.includes('^') || version.includes('~') || version.includes('*'))) {
+    console.log(format.info('💡 TIP', `Symbols like ^ ~ * indicate version ranges, not exact versions. ${colors.bold}${version}${colors.reset} allows compatible versions within semantic versioning rules.`));
+  }
 }
 
 /**

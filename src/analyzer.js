@@ -251,13 +251,13 @@ async function generateHtmlReport(normalizedUrl, version) {
   if (result.isUsingSpecUp) {
     html += htmlReporter.createCardSection(
       'spec-up Version (Original)',
-      htmlReporter.formatSpecUpOriginalVersion(result.specUpOriginalVersion),
+      htmlReporter.formatSpecUpVersion(result.specUpOriginalVersion, true),
       'success'
     );
   } else {
     html += htmlReporter.createCardSection(
       'spec-up-t Version',
-      htmlReporter.formatSpecUpVersion(result.specUpVersion),
+      htmlReporter.formatSpecUpVersion(result.specUpVersion, false),
       'info'
     );
   }
