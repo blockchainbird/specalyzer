@@ -1,6 +1,6 @@
 {
   "name": "specalyzer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A CLI tool to analyze specifications built with Spec-Up or Spec-Up-T.",
   "bin": {
     "specalyzer": "cli.js"
