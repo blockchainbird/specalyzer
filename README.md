@@ -1,6 +1,6 @@
 # Specalyzer
 
-[![npm version](https://badge.fury.io/js/specalyzer.svg)](https://www.npmjs.com/package/specalyzer)
+[![npm version](https://img.shields.io/npm/v/specalyzer)](https://www.npmjs.com/package/specalyzer)
 [![NPM Downloads](https://img.shields.io/npm/dm/specalyzer.svg?style=flat)](https://npmjs.org/package/specalyzer)
 
 A CLI tool to analyze specifications built with Spec-Up or Spec-Up-T.
