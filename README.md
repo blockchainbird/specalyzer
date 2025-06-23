@@ -15,6 +15,10 @@ Where:
 
 - `<url>` is the URL of a specification website built with Spec-Up or Spec-Up-T or a GitHub repository URL.
 
+## Report Location
+
+Generated HTML reports are saved in a directory named `reports` located in the same directory where the script is executed. Ensure you have write permissions in the directory to avoid errors during report generation.
+
 ## Features
 
 - Detects repository information from spec config
